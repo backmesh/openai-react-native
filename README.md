@@ -19,14 +19,13 @@ npm i backmesh/openai-react-native
 
 And then instantiate the client
 
-```
+```typescript
 const client = new OpenAI({
   baseURL:
     'https://edge.backmesh.com/v1/proxy/PyHU4LvcdsQ4gm2xeniAFhMyuDl2/yWo35DdTROVMT52N0qs4/',
   // The backmesh proxy uses your auth provider's JWT to authorize access
   apiKey: supabase.auth.session().access_token,
 });
-
 ```
 
 ### Chat Completions Streaming API
