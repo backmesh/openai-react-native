@@ -1,7 +1,7 @@
 {
   "name": "openai-react-native",
   "version": "0.1.0",
-  "description": "OpenAI API Client that supports SSE streaming and Expo file upload",
+  "description": "OpenAI React Native API Client without polyfills",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
