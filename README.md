@@ -17,7 +17,7 @@ Install the package
 npm i backmesh/openai-react-native
 ```
 
-And then instantiate the client
+And then instantiate the client:
 
 ```typescript
 const client = new OpenAI({
