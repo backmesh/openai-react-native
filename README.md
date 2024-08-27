@@ -30,7 +30,7 @@ const client = new OpenAI({
 
 ### Chat Completions Streaming API
 
-The streaming APIs uses an [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) as implemented by [react-native-sse](https://github.com/binaryminds/react-native-sse) and provides a required typed callback `onData` and three optional ones: `onDone`, `onOpen` and `onError`.
+The streaming APIs uses an [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) as implemented by [react-native-sse](https://github.com/binaryminds/react-native-sse) to provide a required typed callback `onData` and three optional ones: `onDone`, `onOpen` and `onError`.
 
 ```typescript
 client.chat.completions.stream(
