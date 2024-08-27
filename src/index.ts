@@ -18,7 +18,7 @@ interface ClientOptions extends ClientOptionsNode {
 export class OpenAI {
   private apiKey: string;
   private baseURL: string;
-  private client: OpenAINode;
+  private client!: OpenAINode;
 
   constructor(opts: ClientOptions) {
     this.apiKey = opts.apiKey;
@@ -40,9 +40,8 @@ export class OpenAI {
        */
       create: async (
         params: OpenAINode.ChatCompletionCreateParamsNonStreaming
-      ): Promise<OpenAINode.Chat.Completions.ChatCompletion> => {
-        return this.client.chat.completions.create(params);
-      },
+      ): Promise<OpenAINode.Chat.Completions.ChatCompletion> =>
+        this.client.chat.completions.create(params),
       /**
        * Create a chat completion stream using the OpenAI API.
        * @param {OpenAINode.ChatCompletionCreateParamsNonStreaming} params - Parameters for the OpenAI chat completion API since streaming is assumed.
@@ -79,7 +78,7 @@ export class OpenAI {
      * @see {@link https://beta.openai.com/docs/api-reference/files OpenAI Files API}
      * @returns {Promise<FileObject>}
      */
-    expo: async (
+    create: async (
       filePath: string,
       purpose: string
     ): Promise<OpenAINode.FileObject> => {
@@ -98,10 +97,13 @@ export class OpenAI {
           },
         }
       );
-      console.log(response.body);
       const responseData: OpenAINode.FileObject = JSON.parse(response.body);
       return responseData;
     },
+    content: this.client.files.content,
+    delete: this.client.files.del,
+    retrieve: this.client.files.retrieve,
+    list: this.client.files.list,
   };
 
   /**
