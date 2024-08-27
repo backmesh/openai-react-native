@@ -12,15 +12,19 @@ export type RunCallback = (data: OpenAINode.Beta.Threads.Run) => void;
 export type ErrorCallback = (error: any) => void;
 export type OpenCallback = () => void;
 export type DoneCallback = () => void;
-
+export type OptionalCallbacks = {
+  onError?: ErrorCallback;
+  onOpen?: OpenCallback;
+  onDone?: DoneCallback;
+};
 export interface ClientOptions extends ClientOptionsNode {
   apiKey: string;
   baseURL: string;
 }
 
 export class OpenAI {
-  private apiKey: string;
-  private baseURL: string;
+  public apiKey: string;
+  public baseURL: string;
   private client: OpenAINode;
 
   constructor(opts: ClientOptions) {
@@ -39,6 +43,9 @@ export class OpenAI {
   };
 
   public beta = {
+    assistants: {
+      list: async () => this.client.beta.assistants.list(),
+    },
     threads: {
       create: async (body?: OpenAINode.Beta.ThreadCreateParams) =>
         this.client.beta.threads.create(body),
@@ -57,22 +64,14 @@ export class OpenAI {
           threadId: string,
           body: OpenAINode.Beta.Threads.Runs.RunCreateParamsNonStreaming,
           onData: ChatCompletionCallback,
-          onError: ErrorCallback,
-          onOpen?: OpenCallback,
-          onDone?: DoneCallback
-        ): void => {
-          this.client.beta.threads.runs.stream;
+          callbacks: OptionalCallbacks
+        ): void =>
           this._stream(
             `${this.baseURL}/threads/${threadId}/runs`,
             body,
             onData,
-            {
-              onError,
-              onOpen,
-              onDone,
-            }
-          );
-        },
+            callbacks
+          ),
       },
     },
   };
@@ -104,15 +103,14 @@ export class OpenAI {
       stream: (
         params: OpenAINode.ChatCompletionCreateParamsNonStreaming,
         onData: ChatCompletionCallback,
-        onError?: ErrorCallback,
-        onOpen?: OpenCallback,
-        onDone?: DoneCallback
+        callbacks: OptionalCallbacks
       ): void =>
-        this._stream(`${this.baseURL}/chat/completions`, params, onData, {
-          onError,
-          onOpen,
-          onDone,
-        }),
+        this._stream(
+          `${this.baseURL}/chat/completions`,
+          params,
+          onData,
+          callbacks
+        ),
     },
   };
 
@@ -170,11 +168,7 @@ export class OpenAI {
       | OpenAINode.ChatCompletionCreateParamsNonStreaming
       | OpenAINode.Beta.Threads.Runs.RunCreateParamsNonStreaming,
     onData: ChatCompletionCallback | RunCallback,
-    callbacks: {
-      onError?: ErrorCallback;
-      onOpen?: OpenCallback;
-      onDone?: DoneCallback;
-    }
+    callbacks: OptionalCallbacks
   ) {
     const { onError, onOpen, onDone } = callbacks;
     const requestBody = { ...params, stream: true };
