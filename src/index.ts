@@ -59,6 +59,16 @@ export class OpenAI {
       createAndRunPoll: async (
         body: OpenAINode.Beta.ThreadCreateAndRunParamsNonStreaming
       ) => this.client.beta.threads.createAndRunPoll(body),
+      messages: {
+        list: async (threadId: string) =>
+          await this.client.beta.threads.messages.list(threadId),
+        del: async (threadId: string, messageId: string) =>
+          await this.client.beta.threads.messages.del(threadId, messageId),
+        create: async (
+          threadId: string,
+          body: OpenAINode.Beta.Threads.Messages.MessageCreateParams
+        ) => await this.client.beta.threads.messages.create(threadId, body),
+      },
       runs: {
         stream: (
           threadId: string,
