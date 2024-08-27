@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+cp openai-node/scripts/test scripts/test-runner
+rm -rf openai-node
+bash scripts/test-runner
