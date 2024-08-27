@@ -71,10 +71,10 @@ try {
 ## Coverage
 
 - [x] [Chat Completion](https://platform.openai.com/docs/api-reference/chat)
-- [ ] [Models](https://beta.openai.com/docs/api-reference/models)
+- [x] [Models](https://beta.openai.com/docs/api-reference/models)
 - [ ] [Images](https://beta.openai.com/docs/api-reference/images)
 - [x] [Files](https://beta.openai.com/docs/api-reference/files)
-- [ ] [Moderations](https://beta.openai.com/docs/api-reference/moderations)
+- [x] [Moderations](https://beta.openai.com/docs/api-reference/moderations)
 - [ ] [Threads](https://beta.openai.com/docs/api-reference/threads)
 
 ### License
