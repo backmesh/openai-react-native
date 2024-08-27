@@ -189,7 +189,7 @@ export class OpenAI {
     });
 
     eventSource.addEventListener('message', (event) => {
-      if (event.data) {
+      if (event.data && event.data !== '[DONE]') {
         try {
           const data = JSON.parse(event.data);
           onData(data);
