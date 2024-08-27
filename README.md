@@ -14,7 +14,7 @@ If you would like to contribute or request a feature, please join our [Discord](
 Install the package
 
 ```bash
-npm i backmesh/openai-react-native
+npm i openai-react-native
 ```
 
 And then instantiate the client:
