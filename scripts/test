@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+rm -rf openai-node
+git clone https://github.com/openai/openai-node.git
+cd openai-node
+bash scripts/mock --daemon
+cd ..
+cp openai-node/scripts/test scripts/test-runner
+bash scripts/test-runner
