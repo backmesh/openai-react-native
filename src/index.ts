@@ -19,61 +19,11 @@ export class OpenAI {
   private apiKey: string;
   private baseURL: string;
   private client: OpenAINode;
-  public files: {
-    create: (
-      filePath: string,
-      purpose: string
-    ) => Promise<OpenAINode.FileObject>;
-    content: typeof OpenAINode.prototype.files.content;
-    del: typeof OpenAINode.prototype.files.del;
-    retrieve: typeof OpenAINode.prototype.files.retrieve;
-    list: typeof OpenAINode.prototype.files.list;
-  };
-  public moderations: OpenAINode.Moderations;
-  public models: OpenAINode.Models;
 
   constructor(opts: ClientOptions) {
     this.apiKey = opts.apiKey;
     this.baseURL = opts.baseURL;
     this.client = new OpenAINode(opts);
-    this.files = {
-      /**
-       * Upload file using the Expo FileSystem to the OpenAI API /v1/files endpoints
-       * @param {string} filePath - The path of the file to upload.
-       * @param {string} purpose - The purpose of the data (e.g., "fine-tune").
-       * @see {@link https://docs.expo.dev/versions/latest/sdk/filesystem/ Expo FileSystem}
-       * @see {@link https://beta.openai.com/docs/api-reference/files OpenAI Files API}
-       * @returns {Promise<FileObject>}
-       */
-      create: async (
-        filePath: string,
-        purpose: string
-      ): Promise<OpenAINode.FileObject> => {
-        const response = await FileSystem.uploadAsync(
-          `${this.baseURL}/files`,
-          filePath,
-          {
-            headers: {
-              Authorization: `Bearer ${this.apiKey}`,
-            },
-            httpMethod: 'POST',
-            fieldName: 'file',
-            uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-            parameters: {
-              purpose: purpose,
-            },
-          }
-        );
-        const responseData: OpenAINode.FileObject = JSON.parse(response.body);
-        return responseData;
-      },
-      content: this.client.files.content.bind(this.client.files),
-      del: this.client.files.del.bind(this.client.files),
-      retrieve: this.client.files.retrieve.bind(this.client.files),
-      list: this.client.files.list.bind(this.client.files),
-    };
-    this.moderations = this.client.moderations;
-    this.models = this.client.models;
   }
 
   /**
@@ -117,6 +67,43 @@ export class OpenAI {
         );
       },
     },
+  };
+
+  public files = {
+    /**
+     * Upload file using the Expo FileSystem to the OpenAI API /v1/files endpoints
+     * @param {string} filePath - The path of the file to upload.
+     * @param {string} purpose - The purpose of the data (e.g., "fine-tune").
+     * @see {@link https://docs.expo.dev/versions/latest/sdk/filesystem/ Expo FileSystem}
+     * @see {@link https://beta.openai.com/docs/api-reference/files OpenAI Files API}
+     * @returns {Promise<FileObject>}
+     */
+    create: async (
+      filePath: string,
+      purpose: string
+    ): Promise<OpenAINode.FileObject> => {
+      const response = await FileSystem.uploadAsync(
+        `${this.baseURL}/files`,
+        filePath,
+        {
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+          httpMethod: 'POST',
+          fieldName: 'file',
+          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+          parameters: {
+            purpose: purpose,
+          },
+        }
+      );
+      const responseData: OpenAINode.FileObject = JSON.parse(response.body);
+      return responseData;
+    },
+    content: async (fileId: string) => this.client.files.content(fileId),
+    delete: async (fileId: string) => this.client.files.del(fileId),
+    retrieve: async (fileId: string) => this.client.files.retrieve(fileId),
+    list: async () => await this.client.files.list(),
   };
 
   /**
