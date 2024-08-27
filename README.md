@@ -30,10 +30,10 @@ const client = new OpenAI({
 
 ### Chat Completions Streaming API
 
-The streaming APIs return an [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) as implemented by [react-native-sse](https://github.com/binaryminds/react-native-sse) and also optionally provides `onDone`, `onOpen`, `onError` and `onData` callbacks.
+The streaming APIs uses an [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) as implemented by [react-native-sse](https://github.com/binaryminds/react-native-sse) and provides a required typed callback `onData` and three optional ones: `onDone`, `onOpen` and `onError`.
 
 ```typescript
-const eventSource = client.chat.completions.stream(
+client.chat.completions.stream(
   {
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: 'Hello, world!' }],
@@ -45,11 +45,13 @@ const eventSource = client.chat.completions.stream(
       setText((prevText) => prevText + content); // Handle the streaming completion data here
     }
   },
-  (error) => {
-    console.error('SSE Error:', error); // Handle any errors here
-  },
-  () => {
-    console.log('SSE connection for completion opened.'); // Handle when the connection is opened
+  {
+    onError: (error) => {
+      console.error('SSE Error:', error); // Handle any errors here
+    },
+    onOpen: () => {
+      console.log('SSE connection for completion opened.'); // Handle when the connection is opened
+    },
   }
 );
 ```
@@ -75,7 +77,7 @@ try {
 - [ ] [Images](https://beta.openai.com/docs/api-reference/images)
 - [x] [Files](https://beta.openai.com/docs/api-reference/files)
 - [x] [Moderations](https://beta.openai.com/docs/api-reference/moderations)
-- [ ] [Threads](https://beta.openai.com/docs/api-reference/threads)
+- [x] [Threads](https://beta.openai.com/docs/api-reference/threads)
 
 ### License
 

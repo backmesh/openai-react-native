@@ -5,12 +5,15 @@ import {
   type ClientOptions as ClientOptionsNode,
 } from 'openai';
 
-type MessageCallback = (data: any) => void;
-type ErrorCallback = (error: any) => void;
-type OpenCallback = () => void;
-type DoneCallback = () => void;
+export type ChatCompletionCallback = (
+  data: OpenAINode.Chat.Completions.ChatCompletion
+) => void;
+export type RunCallback = (data: OpenAINode.Beta.Threads.Run) => void;
+export type ErrorCallback = (error: any) => void;
+export type OpenCallback = () => void;
+export type DoneCallback = () => void;
 
-interface ClientOptions extends ClientOptionsNode {
+export interface ClientOptions extends ClientOptionsNode {
   apiKey: string;
   baseURL: string;
 }
@@ -26,6 +29,54 @@ export class OpenAI {
     this.client = new OpenAINode(opts);
   }
 
+  public models = {
+    list: async () => this.client.models.list(),
+  };
+
+  public moderations = {
+    create: async (body: OpenAINode.ModerationCreateParams) =>
+      this.client.moderations.create(body),
+  };
+
+  public beta = {
+    threads: {
+      create: async (body?: OpenAINode.Beta.ThreadCreateParams) =>
+        this.client.beta.threads.create(body),
+      retrieve: async (threadId: string) =>
+        this.client.beta.threads.retrieve(threadId),
+      update: async (
+        threadId: string,
+        body: OpenAINode.Beta.ThreadUpdateParams
+      ) => this.client.beta.threads.update(threadId, body),
+      del: async (threadId: string) => this.client.beta.threads.del(threadId),
+      createAndRunPoll: async (
+        body: OpenAINode.Beta.ThreadCreateAndRunParamsNonStreaming
+      ) => this.client.beta.threads.createAndRunPoll(body),
+      runs: {
+        stream: (
+          threadId: string,
+          body: OpenAINode.Beta.Threads.Runs.RunCreateParamsNonStreaming,
+          onData: ChatCompletionCallback,
+          onError: ErrorCallback,
+          onOpen?: OpenCallback,
+          onDone?: DoneCallback
+        ): void => {
+          this.client.beta.threads.runs.stream;
+          this._stream(
+            `${this.baseURL}/threads/${threadId}/runs`,
+            body,
+            onData,
+            {
+              onError,
+              onOpen,
+              onDone,
+            }
+          );
+        },
+      },
+    },
+  };
+
   /**
    * Create a chat completion using the OpenAI API.
    * @param {OpenAIParams} params - Parameters for the OpenAI chat completion API.
@@ -35,37 +86,33 @@ export class OpenAI {
     completions: {
       /**
        * Create a chat completion using the OpenAI API.
-       * @param {OpenAINode.ChatCompletionCreateParamsNonStreaming} params - Parameters for the OpenAI chat completion API.
+       * @body {OpenAINode.ChatCompletionCreateParamsNonStreaming} body - Parameters for the OpenAI chat completion API.
        * @returns {Promise<ChatCompletion>}
        */
       create: async (
-        params: OpenAINode.ChatCompletionCreateParamsNonStreaming
+        body: OpenAINode.ChatCompletionCreateParamsNonStreaming
       ): Promise<OpenAINode.Chat.Completions.ChatCompletion> =>
-        this.client.chat.completions.create(params),
+        this.client.chat.completions.create(body),
       /**
        * Create a chat completion stream using the OpenAI API.
        * @param {OpenAINode.ChatCompletionCreateParamsNonStreaming} params - Parameters for the OpenAI chat completion API since streaming is assumed.
-       * @param {MessageCallback} onMessage - Callback to handle incoming messages.
+       * @param {ChatCompletionCallback} onData - Callback to handle incoming messages.
        * @param {ErrorCallback} onError - Callback to handle errors.
        * @param {OpenCallback} onOpen - Callback to handle when the connection opens.
        * @returns {EventSource} - The EventSource instance for the stream.
        */
       stream: (
         params: OpenAINode.ChatCompletionCreateParamsNonStreaming,
-        onMessage: MessageCallback,
-        onError: ErrorCallback,
+        onData: ChatCompletionCallback,
+        onError?: ErrorCallback,
         onOpen?: OpenCallback,
         onDone?: DoneCallback
-      ): EventSource => {
-        return this._stream(
-          `${this.baseURL}/chat/completions`,
-          params,
-          onMessage,
+      ): void =>
+        this._stream(`${this.baseURL}/chat/completions`, params, onData, {
           onError,
           onOpen,
-          onDone
-        );
-      },
+          onDone,
+        }),
     },
   };
 
@@ -110,20 +157,26 @@ export class OpenAI {
    * Connect to a given OpenAI API endpoint and start streaming.
    * @param {string} url - The API endpoint to connect to.
    * @param {OpenAIParams} params - The parameters to send with the API request.
-   * @param {MessageCallback} onMessage - Callback to handle incoming messages.
-   * @param {ErrorCallback} onError - Callback to handle errors.
-   * @param {OpenCallback} onOpen - Callback to handle when the connection opens.
-   * @returns {EventSource}
+   * @param {ChatCompletionCallback | RunCallback} onData - Callback to handle incoming data.
+   * @param {Object} callbacks - Object containing callback functions.
+   * @param {ErrorCallback} [callbacks.onError] - Callback to handle errors.
+   * @param {OpenCallback} [callbacks.onOpen] - Callback to handle when the connection opens.
+   * @param {DoneCallback} [callbacks.onDone] - Callback to handle when the stream ends.
    * @private
    */
   private _stream(
     url: string,
-    params: OpenAINode.ChatCompletionCreateParamsNonStreaming,
-    onMessage: MessageCallback,
-    onError: ErrorCallback,
-    onOpen?: OpenCallback,
-    onDone?: DoneCallback
-  ): EventSource {
+    params:
+      | OpenAINode.ChatCompletionCreateParamsNonStreaming
+      | OpenAINode.Beta.Threads.Runs.RunCreateParamsNonStreaming,
+    onData: ChatCompletionCallback | RunCallback,
+    callbacks: {
+      onError?: ErrorCallback;
+      onOpen?: OpenCallback;
+      onDone?: DoneCallback;
+    }
+  ) {
+    const { onError, onOpen, onDone } = callbacks;
     const requestBody = { ...params, stream: true };
 
     const eventSource = new EventSource(url, {
@@ -139,9 +192,11 @@ export class OpenAI {
       if (event.data) {
         try {
           const data = JSON.parse(event.data);
-          onMessage?.(data);
+          onData(data);
         } catch (error: any) {
-          onError?.(new Error(`JSON Parse error: ${error.message}`));
+          onError?.(
+            new Error(`JSON Parse on ${event.data} with error ${error.message}`)
+          );
           eventSource.close(); // Disconnect the EventSource
         }
       } else {
@@ -158,8 +213,6 @@ export class OpenAI {
     eventSource.addEventListener('open', () => {
       onOpen?.();
     });
-
-    return eventSource;
   }
 }
 
