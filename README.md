@@ -61,7 +61,7 @@ The file upload API is async, requires a `purpose` string and leverages the [Exp
 ```typescript
 try {
   const filePath = FileSystem.documentDirectory + 'data.pdf'; // Adjust the path as needed
-  const file = await client.files.expo(filePath, 'fine-tune');
+  const file = await client.files.create(filePath, 'fine-tune');
   console.log(file);
 } catch (error) {
   console.error('File creation error:', error);

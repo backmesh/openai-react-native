@@ -25,7 +25,7 @@ export class OpenAI {
       purpose: string
     ) => Promise<OpenAINode.FileObject>;
     content: typeof OpenAINode.prototype.files.content;
-    delete: typeof OpenAINode.prototype.files.del;
+    del: typeof OpenAINode.prototype.files.del;
     retrieve: typeof OpenAINode.prototype.files.retrieve;
     list: typeof OpenAINode.prototype.files.list;
   };
@@ -67,10 +67,10 @@ export class OpenAI {
         const responseData: OpenAINode.FileObject = JSON.parse(response.body);
         return responseData;
       },
-      content: this.client.files.content,
-      delete: this.client.files.del,
-      retrieve: this.client.files.retrieve,
-      list: this.client.files.list,
+      content: this.client.files.content.bind(this.client.files),
+      del: this.client.files.del.bind(this.client.files),
+      retrieve: this.client.files.retrieve.bind(this.client.files),
+      list: this.client.files.list.bind(this.client.files),
     };
     this.moderations = this.client.moderations;
     this.models = this.client.models;
