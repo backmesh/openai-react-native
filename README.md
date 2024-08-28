@@ -20,6 +20,8 @@ npm i openai-react-native
 And then instantiate the client:
 
 ```typescript
+import OpenAI from 'openai-react-native';
+
 const client = new OpenAI({
   baseURL:
     'https://edge.backmesh.com/v1/proxy/PyHU4LvcdsQ4gm2xeniAFhMyuDl2/yWo35DdTROVMT52N0qs4/',
@@ -30,7 +32,7 @@ const client = new OpenAI({
 
 ### Chat Completions Streaming API
 
-The streaming APIs uses an [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) as implemented by [react-native-sse](https://github.com/binaryminds/react-native-sse) to provide a required typed callback `onData` and three optional ones: `onDone`, `onOpen` and `onError`.
+The streaming APIs uses an [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) as implemented by [react-native-sse](https://github.com/binaryminds/react-native-sse) to provide a required typed `onData` stream event callback and three optional ones: `onDone`, `onOpen` and `onError`.
 
 ```typescript
 client.chat.completions.stream(
