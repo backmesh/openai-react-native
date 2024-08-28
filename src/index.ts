@@ -19,7 +19,7 @@ export interface ClientOptions extends ClientOptionsNode {
   baseURL: string;
 }
 export type onChatCompletionData = (data: ChatCompletion) => void;
-export type onThreadRunData = (data: OpenAI.Beta.Threads.Run) => void;
+export type onThreadRunData = (data: Beta.Threads.Run) => void;
 // export top level types from OpenAINode
 export import Moderation = OpenAINode.Moderation;
 export import ModerationCreateResponse = OpenAINode.ModerationCreateResponse;
@@ -55,47 +55,46 @@ export class OpenAI {
 
   public beta = {
     assistants: {
-      list: async (): Promise<OpenAI.Beta.Assistant[]> =>
+      list: async (): Promise<Beta.Assistant[]> =>
         (await this.client.beta.assistants.list()).data,
     },
     threads: {
-      create: async (
-        body?: OpenAI.Beta.ThreadCreateParams
-      ): Promise<OpenAI.Beta.Thread> => this.client.beta.threads.create(body),
-      retrieve: async (threadId: string): Promise<OpenAI.Beta.Thread> =>
+      create: async (body?: Beta.ThreadCreateParams): Promise<Beta.Thread> =>
+        this.client.beta.threads.create(body),
+      retrieve: async (threadId: string): Promise<Beta.Thread> =>
         this.client.beta.threads.retrieve(threadId),
       update: async (
         threadId: string,
-        body: OpenAI.Beta.ThreadUpdateParams
-      ): Promise<OpenAI.Beta.Thread> =>
+        body: Beta.ThreadUpdateParams
+      ): Promise<Beta.Thread> =>
         this.client.beta.threads.update(threadId, body),
-      del: async (threadId: string): Promise<OpenAI.Beta.ThreadDeleted> =>
+      del: async (threadId: string): Promise<Beta.ThreadDeleted> =>
         this.client.beta.threads.del(threadId),
       createAndRunPoll: async (
-        body: OpenAI.Beta.ThreadCreateAndRunParamsNonStreaming
-      ): Promise<OpenAI.Beta.Threads.Run> =>
+        body: Beta.ThreadCreateAndRunParamsNonStreaming
+      ): Promise<Beta.Threads.Run> =>
         this.client.beta.threads.createAndRunPoll(body),
       messages: {
         list: async (
           threadId: string,
-          query?: OpenAI.Beta.Threads.Messages.MessageListParams
-        ): Promise<OpenAI.Beta.Threads.Message[]> =>
+          query?: Beta.Threads.Messages.MessageListParams
+        ): Promise<Beta.Threads.Message[]> =>
           (await this.client.beta.threads.messages.list(threadId, query)).data,
         del: async (
           threadId: string,
           messageId: string
-        ): Promise<OpenAI.Beta.Threads.Messages.MessageDeleted> =>
+        ): Promise<Beta.Threads.Messages.MessageDeleted> =>
           await this.client.beta.threads.messages.del(threadId, messageId),
         create: async (
           threadId: string,
-          body: OpenAI.Beta.Threads.Messages.MessageCreateParams
-        ): Promise<OpenAI.Beta.Threads.Message> =>
+          body: Beta.Threads.Messages.MessageCreateParams
+        ): Promise<Beta.Threads.Message> =>
           await this.client.beta.threads.messages.create(threadId, body),
       },
       runs: {
         stream: (
           threadId: string,
-          body: OpenAI.Beta.Threads.Runs.RunCreateParamsNonStreaming,
+          body: Beta.Threads.Runs.RunCreateParamsNonStreaming,
           onData: onThreadRunData,
           callbacks: onEvents
         ): void =>
@@ -198,7 +197,7 @@ export class OpenAI {
     url: string,
     params:
       | ChatCompletionCreateParamsNonStreaming
-      | OpenAI.Beta.Threads.Runs.RunCreateParamsNonStreaming,
+      | Beta.Threads.Runs.RunCreateParamsNonStreaming,
     onData: onChatCompletionData | onThreadRunData,
     callbacks: onEvents
   ) {
@@ -243,26 +242,24 @@ export class OpenAI {
 }
 
 // export nested types from OpenAINode Beta API
-export namespace OpenAI {
-  export namespace Beta {
-    export import ThreadCreateParams = OpenAINode.Beta.ThreadCreateParams;
-    export import Thread = OpenAINode.Beta.Thread;
-    export import ThreadUpdateParams = OpenAINode.Beta.ThreadUpdateParams;
-    export import ThreadCreateAndRunParamsNonStreaming = OpenAINode.Beta.ThreadCreateAndRunParamsNonStreaming;
-    export import ThreadDeleted = OpenAINode.Beta.ThreadDeleted;
-    export import Assistant = OpenAINode.Beta.Assistant;
-    export namespace Threads {
-      export import Run = OpenAINode.Beta.Threads.Run;
-      export namespace Runs {
-        export type RunCreateParamsNonStreaming =
-          OpenAINode.Beta.Threads.Runs.RunCreateParamsNonStreaming;
-      }
-      export import Message = OpenAINode.Beta.Threads.Message;
-      export namespace Messages {
-        export import MessageCreateParams = OpenAINode.Beta.Threads.Messages.MessageCreateParams;
-        export import MessageListParams = OpenAINode.Beta.Threads.Messages.MessageListParams;
-        export import MessageDeleted = OpenAINode.Beta.Threads.Messages.MessageDeleted;
-      }
+export namespace Beta {
+  export import ThreadCreateParams = OpenAINode.Beta.ThreadCreateParams;
+  export import Thread = OpenAINode.Beta.Thread;
+  export import ThreadUpdateParams = OpenAINode.Beta.ThreadUpdateParams;
+  export import ThreadCreateAndRunParamsNonStreaming = OpenAINode.Beta.ThreadCreateAndRunParamsNonStreaming;
+  export import ThreadDeleted = OpenAINode.Beta.ThreadDeleted;
+  export import Assistant = OpenAINode.Beta.Assistant;
+  export namespace Threads {
+    export import Run = OpenAINode.Beta.Threads.Run;
+    export namespace Runs {
+      export type RunCreateParamsNonStreaming =
+        OpenAINode.Beta.Threads.Runs.RunCreateParamsNonStreaming;
+    }
+    export import Message = OpenAINode.Beta.Threads.Message;
+    export namespace Messages {
+      export import MessageCreateParams = OpenAINode.Beta.Threads.Messages.MessageCreateParams;
+      export import MessageListParams = OpenAINode.Beta.Threads.Messages.MessageListParams;
+      export import MessageDeleted = OpenAINode.Beta.Threads.Messages.MessageDeleted;
     }
   }
 }
