@@ -6,7 +6,9 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "outDir": "dist",
+    "noEmit": false,
   },
   "include": [
     "**/*.ts",
