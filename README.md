@@ -32,7 +32,7 @@ const client = new OpenAI({
 
 ### Chat Completions Streaming API
 
-The streaming APIs uses an [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) as implemented by [react-native-sse](https://github.com/binaryminds/react-native-sse) to provide a required typed `onData` stream event callback and three optional ones: `onDone`, `onOpen` and `onError`.
+The streaming APIs uses an [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) from [react-native-sse](https://github.com/binaryminds/react-native-sse) under the hood to provide a required typed `onData` stream event callback and three optional ones: `onDone`, `onOpen` and `onError`.
 
 ```typescript
 client.chat.completions.stream(
@@ -60,7 +60,7 @@ client.chat.completions.stream(
 
 ### Files API
 
-The file upload API is async, requires a `purpose` string and leverages the [Expo File System](https://docs.expo.dev/versions/latest/sdk/filesystem/) so only a filepath needs to be provided. It was inspired by this [thread](https://community.openai.com/t/sending-blob-to-whisper-api-in-react-native/708672).
+The file upload API is async, requires a `purpose` string and leverages the [Expo File System](https://docs.expo.dev/versions/latest/sdk/filesystem/) so only a filepath needs to be provided.
 
 ```typescript
 try {
