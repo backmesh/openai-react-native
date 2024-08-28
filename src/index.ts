@@ -5,22 +5,61 @@ import {
   type ClientOptions as ClientOptionsNode,
 } from 'openai';
 
-export type ChatCompletionCallback = (
-  data: OpenAINode.Chat.Completions.ChatCompletion
-) => void;
-export type RunCallback = (data: OpenAINode.Beta.Threads.Run) => void;
-export type ErrorCallback = (error: any) => void;
-export type OpenCallback = () => void;
-export type DoneCallback = () => void;
-export type OptionalCallbacks = {
-  onError?: ErrorCallback;
-  onOpen?: OpenCallback;
-  onDone?: DoneCallback;
+export type onStreamError = (error: any) => void;
+export type onStreamOpen = () => void;
+export type onStreamDone = () => void;
+export type onStreamOptionalEvents = {
+  onError?: onStreamError;
+  onOpen?: onStreamOpen;
+  onDone?: onStreamDone;
 };
 export interface ClientOptions extends ClientOptionsNode {
   apiKey: string;
   baseURL: string;
 }
+// export types from OpenAINode
+export namespace Chat {
+  export namespace Completions {
+    export import ChatCompletion = OpenAINode.Chat.Completions.ChatCompletion;
+    export type onStreamData = (
+      data: OpenAINode.Chat.Completions.ChatCompletion
+    ) => void; // specific to this library
+  }
+}
+export import ChatCompletionCreateParamsNonStreaming = OpenAINode.ChatCompletionCreateParamsNonStreaming;
+
+export namespace Moderation {
+  export import Categories = OpenAINode.Moderation.Categories;
+  export interface Moderation extends OpenAINode.Moderation {}
+}
+export import ModerationCreateResponse = OpenAINode.ModerationCreateResponse;
+export import ModerationCreateParams = OpenAINode.ModerationCreateParams;
+export import Model = OpenAINode.Model;
+export namespace Beta {
+  export import ThreadCreateParams = OpenAINode.Beta.ThreadCreateParams;
+  export import Thread = OpenAINode.Beta.Thread;
+  export import ThreadUpdateParams = OpenAINode.Beta.ThreadUpdateParams;
+  export import ThreadCreateAndRunParamsNonStreaming = OpenAINode.Beta.ThreadCreateAndRunParamsNonStreaming;
+  export import ThreadDeleted = OpenAINode.Beta.ThreadDeleted;
+  export import Assistant = OpenAINode.Beta.Assistant;
+  export namespace Threads {
+    export import Run = OpenAINode.Beta.Threads.Run;
+    export namespace Runs {
+      export type RunCreateParamsNonStreaming =
+        OpenAINode.Beta.Threads.Runs.RunCreateParamsNonStreaming;
+      export type onStreamData = (data: OpenAINode.Beta.Threads.Run) => void; // specific to this library
+    }
+    export import Message = OpenAINode.Beta.Threads.Message;
+    export namespace Messages {
+      export import MessageCreateParams = OpenAINode.Beta.Threads.Messages.MessageCreateParams;
+      export import MessageListParams = OpenAINode.Beta.Threads.Messages.MessageListParams;
+      export import MessageDeleted = OpenAINode.Beta.Threads.Messages.MessageDeleted;
+    }
+  }
+}
+export import FileObject = OpenAINode.FileObject;
+export import FileContent = OpenAINode.FileContent;
+export import FileDeleted = OpenAINode.FileDeleted;
 
 export class OpenAI {
   public apiKey: string;
@@ -34,47 +73,60 @@ export class OpenAI {
   }
 
   public models = {
-    list: async () => this.client.models.list(),
+    list: async (): Promise<Model[]> => (await this.client.models.list()).data,
   };
 
   public moderations = {
-    create: async (body: OpenAINode.ModerationCreateParams) =>
+    create: async (
+      body: ModerationCreateParams
+    ): Promise<ModerationCreateResponse> =>
       this.client.moderations.create(body),
   };
 
   public beta = {
     assistants: {
-      list: async () => this.client.beta.assistants.list(),
+      list: async (): Promise<Beta.Assistant[]> =>
+        (await this.client.beta.assistants.list()).data,
     },
     threads: {
-      create: async (body?: OpenAINode.Beta.ThreadCreateParams) =>
+      create: async (body?: Beta.ThreadCreateParams): Promise<Beta.Thread> =>
         this.client.beta.threads.create(body),
-      retrieve: async (threadId: string) =>
+      retrieve: async (threadId: string): Promise<Beta.Thread> =>
         this.client.beta.threads.retrieve(threadId),
       update: async (
         threadId: string,
-        body: OpenAINode.Beta.ThreadUpdateParams
-      ) => this.client.beta.threads.update(threadId, body),
-      del: async (threadId: string) => this.client.beta.threads.del(threadId),
+        body: Beta.ThreadUpdateParams
+      ): Promise<Beta.Thread> =>
+        this.client.beta.threads.update(threadId, body),
+      del: async (threadId: string): Promise<Beta.ThreadDeleted> =>
+        this.client.beta.threads.del(threadId),
       createAndRunPoll: async (
-        body: OpenAINode.Beta.ThreadCreateAndRunParamsNonStreaming
-      ) => this.client.beta.threads.createAndRunPoll(body),
+        body: Beta.ThreadCreateAndRunParamsNonStreaming
+      ): Promise<Beta.Threads.Run> =>
+        this.client.beta.threads.createAndRunPoll(body),
       messages: {
-        list: async (threadId: string) =>
-          await this.client.beta.threads.messages.list(threadId),
-        del: async (threadId: string, messageId: string) =>
+        list: async (
+          threadId: string,
+          query?: Beta.Threads.Messages.MessageListParams
+        ): Promise<Beta.Threads.Message[]> =>
+          (await this.client.beta.threads.messages.list(threadId, query)).data,
+        del: async (
+          threadId: string,
+          messageId: string
+        ): Promise<Beta.Threads.Messages.MessageDeleted> =>
           await this.client.beta.threads.messages.del(threadId, messageId),
         create: async (
           threadId: string,
-          body: OpenAINode.Beta.Threads.Messages.MessageCreateParams
-        ) => await this.client.beta.threads.messages.create(threadId, body),
+          body: Beta.Threads.Messages.MessageCreateParams
+        ): Promise<Beta.Threads.Message> =>
+          await this.client.beta.threads.messages.create(threadId, body),
       },
       runs: {
         stream: (
           threadId: string,
-          body: OpenAINode.Beta.Threads.Runs.RunCreateParamsNonStreaming,
-          onData: ChatCompletionCallback,
-          callbacks: OptionalCallbacks
+          body: Beta.Threads.Runs.RunCreateParamsNonStreaming,
+          onData: Chat.Completions.onStreamData,
+          callbacks: onStreamOptionalEvents
         ): void =>
           this._stream(
             `${this.baseURL}/threads/${threadId}/runs`,
@@ -95,25 +147,24 @@ export class OpenAI {
     completions: {
       /**
        * Create a chat completion using the OpenAI API.
-       * @body {OpenAINode.ChatCompletionCreateParamsNonStreaming} body - Parameters for the OpenAI chat completion API.
+       * @body {ChatCompletionCreateParamsNonStreaming} body - Parameters for the OpenAI chat completion API.
        * @returns {Promise<ChatCompletion>}
        */
       create: async (
-        body: OpenAINode.ChatCompletionCreateParamsNonStreaming
-      ): Promise<OpenAINode.Chat.Completions.ChatCompletion> =>
+        body: ChatCompletionCreateParamsNonStreaming
+      ): Promise<Chat.Completions.ChatCompletion> =>
         this.client.chat.completions.create(body),
       /**
        * Create a chat completion stream using the OpenAI API.
-       * @param {OpenAINode.ChatCompletionCreateParamsNonStreaming} params - Parameters for the OpenAI chat completion API since streaming is assumed.
-       * @param {ChatCompletionCallback} onData - Callback to handle incoming messages.
-       * @param {ErrorCallback} onError - Callback to handle errors.
-       * @param {OpenCallback} onOpen - Callback to handle when the connection opens.
-       * @returns {EventSource} - The EventSource instance for the stream.
+       * @param {ChatCompletionCreateParamsNonStreaming} params - Parameters for the OpenAI chat completion API since streaming is assumed.
+       * @param {Chat.Completions.onStreamData} onData - Callback to handle incoming messages.
+       * @param {onStreamOptionalEvents} callbacks - Object containing optional callback functions.
+       * @returns {void}
        */
       stream: (
-        params: OpenAINode.ChatCompletionCreateParamsNonStreaming,
-        onData: ChatCompletionCallback,
-        callbacks: OptionalCallbacks
+        params: ChatCompletionCreateParamsNonStreaming,
+        onData: Chat.Completions.onStreamData,
+        callbacks: onStreamOptionalEvents
       ): void =>
         this._stream(
           `${this.baseURL}/chat/completions`,
@@ -133,10 +184,7 @@ export class OpenAI {
      * @see {@link https://beta.openai.com/docs/api-reference/files OpenAI Files API}
      * @returns {Promise<FileObject>}
      */
-    create: async (
-      filePath: string,
-      purpose: string
-    ): Promise<OpenAINode.FileObject> => {
+    create: async (filePath: string, purpose: string): Promise<FileObject> => {
       const response = await FileSystem.uploadAsync(
         `${this.baseURL}/files`,
         filePath,
@@ -152,13 +200,17 @@ export class OpenAI {
           },
         }
       );
-      const responseData: OpenAINode.FileObject = JSON.parse(response.body);
+      const responseData: FileObject = JSON.parse(response.body);
       return responseData;
     },
-    content: async (fileId: string) => this.client.files.content(fileId),
-    delete: async (fileId: string) => this.client.files.del(fileId),
-    retrieve: async (fileId: string) => this.client.files.retrieve(fileId),
-    list: async () => await this.client.files.list(),
+    content: async (fileId: string): Promise<Response> =>
+      this.client.files.content(fileId),
+    delete: async (fileId: string): Promise<FileDeleted> =>
+      this.client.files.del(fileId),
+    retrieve: async (fileId: string): Promise<FileObject> =>
+      this.client.files.retrieve(fileId),
+    list: async (): Promise<FileObject[]> =>
+      (await this.client.files.list()).data,
   };
 
   /**
@@ -166,19 +218,19 @@ export class OpenAI {
    * @param {string} url - The API endpoint to connect to.
    * @param {OpenAIParams} params - The parameters to send with the API request.
    * @param {ChatCompletionCallback | RunCallback} onData - Callback to handle incoming data.
-   * @param {Object} callbacks - Object containing callback functions.
-   * @param {ErrorCallback} [callbacks.onError] - Callback to handle errors.
-   * @param {OpenCallback} [callbacks.onOpen] - Callback to handle when the connection opens.
-   * @param {DoneCallback} [callbacks.onDone] - Callback to handle when the stream ends.
+   * @param {onStreamOptionalEvents} callbacks - Object containing callback functions.
+   * @param {onStreamError} [callbacks.onError] - Callback to handle errors.
+   * @param {onStreamOpen} [callbacks.onOpen] - Callback to handle when the connection opens.
+   * @param {onStreamDone} [callbacks.onDone] - Callback to handle when the stream ends.
    * @private
    */
   private _stream(
     url: string,
     params:
-      | OpenAINode.ChatCompletionCreateParamsNonStreaming
-      | OpenAINode.Beta.Threads.Runs.RunCreateParamsNonStreaming,
-    onData: ChatCompletionCallback | RunCallback,
-    callbacks: OptionalCallbacks
+      | ChatCompletionCreateParamsNonStreaming
+      | Beta.Threads.Runs.RunCreateParamsNonStreaming,
+    onData: Chat.Completions.onStreamData | Beta.Threads.Runs.onStreamData,
+    callbacks: onStreamOptionalEvents
   ) {
     const { onError, onOpen, onDone } = callbacks;
     const requestBody = { ...params, stream: true };

@@ -1,6 +1,6 @@
 {
   "name": "openai-react-native",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "OpenAI React Native API Client without polyfills",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
