@@ -4,22 +4,15 @@
     "strict": true,
     "paths": {
       "@/*": [
-        "./*"
-      ]
-    },
-    "outDir": "dist",
-    "noEmit": false, // makes sure dist is emitted
-    "declaration": true, // add types
+        "./*",
+      ],
+      "openai-react-native": ["./node_modules/openai-react-native/dist"]
+    }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ],
-  "exclude": [
-    "openai-node",
-    "dist",
-    "sample"
   ]
 }
