@@ -18,7 +18,7 @@ export interface ClientOptions extends ClientOptionsNode {
   apiKey: string;
   baseURL: string;
 }
-export type onChatCompletionData = (data: ChatCompletion) => void;
+export type onChatCompletionChunkData = (data: ChatCompletionChunk) => void;
 export type onThreadRunData = (data: Beta.Threads.Run) => void;
 // export top level types from OpenAINode
 export import Moderation = OpenAINode.Moderation;
@@ -26,6 +26,7 @@ export import ModerationCreateResponse = OpenAINode.ModerationCreateResponse;
 export import ModerationCreateParams = OpenAINode.ModerationCreateParams;
 export import Model = OpenAINode.Model;
 export import ChatCompletionCreateParamsNonStreaming = OpenAINode.ChatCompletionCreateParamsNonStreaming;
+export import ChatCompletionChunk = OpenAINode.ChatCompletionChunk;
 export import ChatCompletion = OpenAINode.ChatCompletion;
 export import FileObject = OpenAINode.FileObject;
 export import FileContent = OpenAINode.FileContent;
@@ -39,6 +40,8 @@ export class OpenAI {
   constructor(opts: ClientOptions) {
     this.apiKey = opts.apiKey;
     this.baseURL = opts.baseURL;
+    // expo file system does not work in web anyway
+    // opts.dangerouslyAllowBrowser = true;
     this.client = new OpenAINode(opts);
   }
 
@@ -132,7 +135,7 @@ export class OpenAI {
        */
       stream: (
         params: ChatCompletionCreateParamsNonStreaming,
-        onData: onChatCompletionData,
+        onData: onChatCompletionChunkData,
         callbacks: onEvents
       ): void =>
         this._stream(
@@ -198,7 +201,7 @@ export class OpenAI {
     params:
       | ChatCompletionCreateParamsNonStreaming
       | Beta.Threads.Runs.RunCreateParamsNonStreaming,
-    onData: onChatCompletionData | onThreadRunData,
+    onData: onChatCompletionChunkData | onThreadRunData,
     callbacks: onEvents
   ) {
     const { onError, onOpen, onDone } = callbacks;
