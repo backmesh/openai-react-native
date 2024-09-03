@@ -30,7 +30,7 @@ const client = new OpenAI({
 });
 ```
 
-### Chat Completions Streaming API
+### Usage
 
 The streaming APIs uses an [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) from [react-native-sse](https://github.com/binaryminds/react-native-sse) under the hood to provide a required typed `onData` stream event callback and three optional ones: `onDone`, `onOpen` and `onError`.
 
@@ -58,8 +58,6 @@ client.chat.completions.stream(
 );
 ```
 
-### Files API
-
 The file upload API is async, requires a `purpose` string and leverages the [Expo File System](https://docs.expo.dev/versions/latest/sdk/filesystem/) so only a filepath needs to be provided.
 
 ```typescript
@@ -71,6 +69,8 @@ try {
   console.error('File creation error:', error);
 }
 ```
+
+Check the [example](https://github.com/backmesh/openai-react-native/blob/main/sample/app/index.tsx) for more details
 
 ## Coverage
 
