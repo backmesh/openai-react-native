@@ -51,7 +51,7 @@ describe('OpenAI Integration Tests', () => {
         (completion) => {
           expect(completion).toBeDefined();
           expect(completion.id).toBeDefined();
-          const content = completion.choices[0].message;
+          const content = completion.choices[0].delta.content;
           expect(content).toBeDefined();
         },
         {
