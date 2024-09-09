@@ -76,10 +76,16 @@ Check the [example](https://github.com/backmesh/openai-react-native/blob/main/sa
 
 - [x] [Chat Completion](https://platform.openai.com/docs/api-reference/chat)
 - [x] [Models](https://beta.openai.com/docs/api-reference/models)
-- [ ] [Images](https://beta.openai.com/docs/api-reference/images)
 - [x] [Files](https://beta.openai.com/docs/api-reference/files)
 - [x] [Moderations](https://beta.openai.com/docs/api-reference/moderations)
+- [ ] [Images](https://beta.openai.com/docs/api-reference/images)
+- [ ] [Audio](https://platform.openai.com/docs/api-reference/audio)
+- [ ] [Embeddings](https://platform.openai.com/docs/api-reference/embeddings)
+
+## Beta Coverage
+
 - [x] [Threads](https://beta.openai.com/docs/api-reference/threads)
+- [x] [Assistants](https://platform.openai.com/docs/api-reference/assistants)
 
 ### License
 
