@@ -7,7 +7,7 @@ The goal of this library is to use [React Native SSE](https://github.com/binarym
 
 ### Contributions and Feature Requests
 
-If you would like to contribute or request a feature, please join our [Discord](https://discord.com/invite/FfYyJfgUUY) and ask questions in the **#openai-react-native** channel or create a pull request or issue.
+If you would like to contribute or request a feature, please join our [Discord](https://discord.com/invite/FfYyJfgUUY) and ask questions in the **#oss** channel or create a pull request or issue.
 
 ### Setup
 
