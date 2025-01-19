@@ -1,6 +1,6 @@
 {
   "name": "openai-react-native",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "OpenAI React Native API Client without polyfills",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -41,16 +41,16 @@
     }
   },
   "dependencies": {
-    "expo-file-system": "^17.0.1",
-    "openai": "^4.56.0",
+    "expo-file-system": "^18.0.7",
+    "openai": "^4.79.1",
     "react-native-sse": "^1.2.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "@types/jest": "^29.5.12",
-    "@types/react": "~18.2.45",
-    "@types/react-test-renderer": "^18.0.7",
-    "expo": "~51.0.28",
+    "@babel/core": "^7.26.0",
+    "@types/jest": "^29.5.14",
+    "@types/react": "~19.0.7",
+    "@types/react-test-renderer": "^19.0.0",
+    "expo": "~52.0.26",
     "jest": "^29.2.1",
     "jest-expo": "~51.0.3",
     "react": "18.2.0",

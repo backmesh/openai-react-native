@@ -21,39 +21,39 @@ export interface ClientOptions extends ClientOptionsNode {
 export type onChatCompletionChunkData = (data: ChatCompletionChunk) => void;
 export type onThreadRunData = (data: Beta.Threads.Run) => void;
 // export top level types from OpenAINode
-export import Moderation = OpenAINode.Moderation;
-export import ModerationCreateResponse = OpenAINode.ModerationCreateResponse;
-export import ModerationCreateParams = OpenAINode.ModerationCreateParams;
-export import Model = OpenAINode.Model;
-export import ChatCompletionCreateParamsNonStreaming = OpenAINode.ChatCompletionCreateParamsNonStreaming;
-export import ChatCompletionChunk = OpenAINode.ChatCompletionChunk;
-export import ChatCompletion = OpenAINode.ChatCompletion;
-export import FileObject = OpenAINode.FileObject;
-export import FileContent = OpenAINode.FileContent;
-export import FileDeleted = OpenAINode.FileDeleted;
+export type Moderation = OpenAINode.Moderation;
+export type ModerationCreateResponse = OpenAINode.ModerationCreateResponse;
+export type ModerationCreateParams = OpenAINode.ModerationCreateParams;
+export type Model = OpenAINode.Model;
+export type ChatCompletionCreateParamsNonStreaming = OpenAINode.ChatCompletionCreateParamsNonStreaming;
+export type ChatCompletionChunk = OpenAINode.ChatCompletionChunk;
+export type ChatCompletion = OpenAINode.ChatCompletion;
+export type FileObject = OpenAINode.FileObject;
+export type FileContent = OpenAINode.FileContent;
+export type FileDeleted = OpenAINode.FileDeleted;
 // export nested types from OpenAINode Beta API
 export namespace Beta {
-  export import ThreadCreateParams = OpenAINode.Beta.ThreadCreateParams;
-  export import Thread = OpenAINode.Beta.Thread;
-  export import ThreadUpdateParams = OpenAINode.Beta.ThreadUpdateParams;
-  export import ThreadCreateAndRunParamsNonStreaming = OpenAINode.Beta.ThreadCreateAndRunParamsNonStreaming;
-  export import ThreadDeleted = OpenAINode.Beta.ThreadDeleted;
-  export import Assistant = OpenAINode.Beta.Assistant;
-  export import AssistantDeleted = OpenAINode.Beta.AssistantDeleted;
+  export type ThreadCreateParams = OpenAINode.Beta.ThreadCreateParams;
+  export type Thread = OpenAINode.Beta.Thread;
+  export type ThreadUpdateParams = OpenAINode.Beta.ThreadUpdateParams;
+  export type ThreadCreateAndRunParamsNonStreaming = OpenAINode.Beta.ThreadCreateAndRunParamsNonStreaming;
+  export type ThreadDeleted = OpenAINode.Beta.ThreadDeleted;
+  export type Assistant = OpenAINode.Beta.Assistant;
+  export type AssistantDeleted = OpenAINode.Beta.AssistantDeleted;
   export namespace Assistants {
-    export import AssistantCreateParams = OpenAINode.Beta.Assistants.AssistantCreateParams;
+    export type AssistantCreateParams = OpenAINode.Beta.Assistants.AssistantCreateParams;
   }
   export namespace Threads {
-    export import Run = OpenAINode.Beta.Threads.Run;
+    export type Run = OpenAINode.Beta.Threads.Run;
     export namespace Runs {
       export type RunCreateParamsNonStreaming =
         OpenAINode.Beta.Threads.Runs.RunCreateParamsNonStreaming;
     }
-    export import Message = OpenAINode.Beta.Threads.Message;
+    export type Message = OpenAINode.Beta.Threads.Message;
     export namespace Messages {
-      export import MessageCreateParams = OpenAINode.Beta.Threads.Messages.MessageCreateParams;
-      export import MessageListParams = OpenAINode.Beta.Threads.Messages.MessageListParams;
-      export import MessageDeleted = OpenAINode.Beta.Threads.Messages.MessageDeleted;
+      export type MessageCreateParams = OpenAINode.Beta.Threads.Messages.MessageCreateParams;
+      export type MessageListParams = OpenAINode.Beta.Threads.Messages.MessageListParams;
+      export type MessageDeleted = OpenAINode.Beta.Threads.Messages.MessageDeleted;
     }
   }
 }
@@ -144,7 +144,10 @@ export class OpenAI {
             `${this.baseURL}/threads/${threadId}/runs`,
             body,
             onData,
-            callbacks
+            callbacks,
+            {
+              'OpenAI-Beta': 'assistants=v2',
+            }
           ),
       },
     },
@@ -241,7 +244,8 @@ export class OpenAI {
       | ChatCompletionCreateParamsNonStreaming
       | Beta.Threads.Runs.RunCreateParamsNonStreaming,
     onData: onChatCompletionChunkData | onThreadRunData,
-    callbacks: onEvents
+    callbacks: onEvents,
+    headers: Record<string, string> = {},
   ) {
     const { onError, onOpen, onDone } = callbacks;
     const requestBody = { ...params, stream: true };
@@ -250,6 +254,7 @@ export class OpenAI {
       headers: {
         'Authorization': `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json',
+        ...headers,
       },
       method: 'POST',
       body: JSON.stringify(requestBody),
