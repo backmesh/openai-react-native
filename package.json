@@ -19,7 +19,7 @@
     "type": "git",
     "url": "git+https://github.com/backmesh/openai-react-native.git"
   },
-  "author": "L. Fernando De Pombo <f@backmesh.com> (https://backmesh.com)",
+  "author": "Luis Fernando De Pombo <luis@backmesh.com> (https://backmesh.com)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/backmesh/openai-react-native/issues"
